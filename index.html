@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en>
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
@@ -39,7 +39,6 @@
       font-weight: 900;
       user-select: none;
     }
-    /* LOGIN */
     #loginPage {
       flex: 1;
       display: flex;
@@ -61,11 +60,6 @@
       font-size: 1rem;
       background-color: #333;
       color: #eee;
-      transition: background-color 0.3s ease;
-    }
-    #loginPage input[type="text"]:focus,
-    #loginPage input[type="password"]:focus {
-      background-color: #444;
     }
     #loginBtn {
       width: 100%;
@@ -77,7 +71,6 @@
       font-size: 1.1rem;
       font-weight: 700;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
     #loginBtn:hover {
       background-color: #0088cc;
@@ -88,10 +81,8 @@
       margin-top: 6px;
       text-align: center;
       min-height: 1.2em;
-      user-select: none;
     }
 
-    /* MAIN PAGE */
     #mainPage {
       flex: 1;
       display: none;
@@ -103,7 +94,6 @@
       margin-bottom: 12px;
       color: #00ddff;
       text-align: center;
-      user-select: none;
       font-weight: 700;
     }
     #chatWindow {
@@ -115,7 +105,6 @@
       margin-bottom: 12px;
       color: #ccc;
       font-size: 0.95rem;
-      user-select: text;
     }
     .chat-message {
       margin-bottom: 10px;
@@ -147,10 +136,6 @@
       outline: none;
       background-color: #333;
       color: #eee;
-      transition: background-color 0.3s ease;
-    }
-    #questionInput:focus {
-      background-color: #444;
     }
     #sendBtn {
       background-color: #00aaff;
@@ -161,41 +146,10 @@
       font-weight: 700;
       font-size: 1rem;
       cursor: pointer;
-      transition: background-color 0.3s ease;
-      user-select: none;
     }
     #sendBtn:hover {
       background-color: #0088cc;
     }
-
-    /* FILE LOAD */
-    #fileLoadArea {
-      margin-bottom: 8px;
-      font-size: 0.85rem;
-      color: #00ddff;
-      text-align: center;
-      user-select: none;
-    }
-    #fileInput {
-      display: none;
-    }
-    #loadDataBtn {
-      background-color: #006699;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.9rem;
-      transition: background-color 0.3s ease;
-      user-select: none;
-    }
-    #loadDataBtn:hover {
-      background-color: #004466;
-    }
-
-    /* SCROLLBAR */
     #chatWindow::-webkit-scrollbar {
       width: 8px;
     }
@@ -203,8 +157,6 @@
       background-color: #00aaffaa;
       border-radius: 10px;
     }
-
-    /* LOGOUT */
     #logoutBtn {
       background: transparent;
       border: none;
@@ -213,15 +165,12 @@
       cursor: pointer;
       margin-top: 10px;
       align-self: center;
-      user-select: none;
       text-decoration: underline;
       font-size: 0.9rem;
     }
     #logoutBtn:hover {
       color: #0088cc;
     }
-
-    /* MOBILE RESPONSIVE */
     @media (max-width: 400px) {
       #app {
         width: 100%;
@@ -235,45 +184,37 @@
   </style>
 </head>
 <body>
-  <div id="app" role="main" aria-label="Tech Support AI Agent App">
-    <div id="loginPage" aria-live="polite">
+  <div id="app">
+    <div id="loginPage">
       <h1>Suporte Técnico</h1>
-      <label for="usernameInput">Username</label>
-      <input type="text" id="usernameInput" autocomplete="username" aria-required="true" />
-      <label for="passwordInput">Password</label>
-      <input type="password" id="passwordInput" autocomplete="current-password" aria-required="true" />
-      <button id="loginBtn" aria-label="Login to the system">Login</button>
-      <div id="loginError" role="alert" aria-atomic="true"></div>
+      <label for="usernameInput">Usuário</label>
+      <input type="text" id="usernameInput" autocomplete="username" />
+      <label for="passwordInput">Senha</label>
+      <input type="password" id="passwordInput" autocomplete="current-password" />
+      <button id="loginBtn">Login</button>
+      <div id="loginError"></div>
     </div>
 
-    <div id="mainPage" aria-live="polite">
+    <div id="mainPage">
       <h1>Suporte Técnico</h1>
-      <div id="welcomeMsg">Bem vindo! Faça suas perguntas técnicas abaixo.</div>
-
-      <div id="fileLoadArea">
-        <button id="loadDataBtn" aria-label="Load knowledge base JSON file">Carregar dados da base de conhecimento</button>
-        <input type="file" id="fileInput" accept=".json" aria-label="Select JSON file with knowledge base" />
-        <div id="loadStatus" aria-live="polite" style="min-height:1.2em; margin-top:4px;"></div>
-      </div>
-
-      <div id="chatWindow" aria-live="polite" aria-relevant="additions" tabindex="0" role="log"></div>
+      <div id="welcomeMsg">Bem-vindo! Faça suas perguntas técnicas abaixo.</div>
+      <div id="chatWindow"></div>
       <div id="inputArea">
-        <input type="text" id="questionInput" placeholder="Type your question here..." aria-label="Question input" autocomplete="off" />
-        <button id="sendBtn" aria-label="Send question">Send</button>
+        <input type="text" id="questionInput" placeholder="Digite sua pergunta..." />
+        <button id="sendBtn">Enviar</button>
       </div>
-      <button id="logoutBtn" role="button" aria-label="Logout">Logout</button>
+      <button id="logoutBtn">Sair</button>
     </div>
   </div>
 
   <script>
     (() => {
       const USERS = [
-        { username: 'Técnico01', password: 'tecnico01' },
+        { username: 'Técnico01', password: '1234' },
+        { username: 'Gustavo', password: '1234' },
         { username: 'admin', password: 'admin' }
       ];
-    
-      let segments = []; // novo JSON com array de strings
-    
+
       const loginPage = document.getElementById('loginPage');
       const mainPage = document.getElementById('mainPage');
       const loginBtn = document.getElementById('loginBtn');
@@ -284,40 +225,35 @@
       const chatWindow = document.getElementById('chatWindow');
       const questionInput = document.getElementById('questionInput');
       const sendBtn = document.getElementById('sendBtn');
-    
-      const loadDataBtn = document.getElementById('loadDataBtn');
-      const fileInput = document.getElementById('fileInput');
-      const loadStatus = document.getElementById('loadStatus');
-    
+
       let loggedInUser = null;
-    
+
       function addMessage(msg, isUser = false) {
         const div = document.createElement('div');
         div.textContent = msg;
-        div.classList.add('chat-message');
-        div.classList.add(isUser ? 'user-msg' : 'agent-msg');
+        div.classList.add('chat-message', isUser ? 'user-msg' : 'agent-msg');
         chatWindow.appendChild(div);
         chatWindow.scrollTop = chatWindow.scrollHeight;
       }
-    
+
       function validateLogin(username, password) {
         return USERS.some(user => user.username === username && user.password === password);
       }
-    
+
       function showLoginError(msg) {
         loginError.textContent = msg;
       }
-    
+
       function resetLoginError() {
         loginError.textContent = '';
       }
-    
+
       function showMainPage() {
         loginPage.style.display = 'none';
         mainPage.style.display = 'flex';
         questionInput.focus();
       }
-    
+
       function showLoginPage() {
         mainPage.style.display = 'none';
         loginPage.style.display = 'flex';
@@ -326,46 +262,38 @@
         resetLoginError();
         usernameInput.focus();
         chatWindow.innerHTML = '';
-        loadStatus.textContent = '';
-        segments = [];
       }
-    
+
       loginBtn.addEventListener('click', () => {
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
         if (!username || !password) {
-          showLoginError('Please enter both username and password.');
+          showLoginError('Preencha usuário e senha.');
           return;
         }
         if (validateLogin(username, password)) {
           loggedInUser = username;
           showMainPage();
         } else {
-          showLoginError('Invalid username or password.');
+          showLoginError('Usuário ou senha inválidos.');
         }
       });
-    
+
       logoutBtn.addEventListener('click', () => {
         loggedInUser = null;
         showLoginPage();
       });
-    
+
       sendBtn.addEventListener('click', async () => {
         const question = questionInput.value.trim();
         if (!question) return;
         addMessage(question, true);
         questionInput.value = '';
-    
-        if (segments.length === 0) {
-          addMessage("Por favor, carregue o arquivo de conhecimento (JSON).", false);
-          return;
-        }
-    
         try {
           const res = await fetch('http://localhost:8000/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ question, segments })
+            body: JSON.stringify({ question })
           });
           const data = await res.json();
           addMessage(data.answer || "Nenhuma resposta encontrada.", false);
@@ -373,7 +301,7 @@
           addMessage("Erro ao consultar IA: " + err.message, false);
         }
       });
-    
+
       usernameInput.addEventListener('keydown', e => {
         if (e.key === 'Enter') passwordInput.focus();
       });
@@ -383,36 +311,9 @@
       questionInput.addEventListener('keydown', e => {
         if (e.key === 'Enter') sendBtn.click();
       });
-    
-      fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) {
-          loadStatus.textContent = 'Nenhum arquivo selecionado.';
-          return;
-        }
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          try {
-            const json = JSON.parse(event.target.result);
-            if (!Array.isArray(json.segments)) throw new Error('Formato inválido. Esperado: { "segments": [...] }');
-            segments = json.segments;
-            loadStatus.textContent = `Base de conhecimento carregada com ${segments.length} segmentos.`;
-          } catch (err) {
-            loadStatus.textContent = 'Erro no JSON: ' + err.message;
-          }
-        };
-        reader.readAsText(file);
-        fileInput.value = '';
-      });
-    
-      loadDataBtn.addEventListener('click', () => {
-        fileInput.click();
-      });
-    
+
       showLoginPage();
     })();
-    </script>
-    
+  </script>
 </body>
 </html>
-
