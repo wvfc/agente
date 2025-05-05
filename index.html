@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Tech Support AI Agent (PDF Data Input)</title>
+  <style>
+    /* RESET */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121212;
+      color: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #app {
+      width: 100%;
+      max-width: 400px;
+      background: #1e1e1e;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00aaffaa;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      height: 600px;
+      max-height: 600px;
+    }
+    h1 {
+      text-align: center;
+      color: #00aaff;
+      margin-bottom: 8px;
+      font-weight: 900;
+      user-select: none;
+    }
+    /* LOGIN */
+    #loginPage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    #loginPage label {
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+    #loginPage input[type="text"],
+    #loginPage input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      background-color: #333;
+      color: #eee;
+      transition: background-color 0.3s ease;
+    }
+    #loginPage input[type="text"]:focus,
+    #loginPage input[type="password"]:focus {
+      background-color: #444;
+    }
+    #loginBtn {
+      width: 100%;
+      background-color: #00aaff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      color: #121212;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #loginBtn:hover {
+      background-color: #0088cc;
+    }
+    #loginError {
+      color: #ff5555;
+      font-weight: 700;
+      margin-top: 6px;
+      text-align: center;
+      min-height: 1.2em;
+      user-select: none;
+    }
+
+    /* MAIN PAGE */
+    #mainPage {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      height: 100%;
+    }
+    #welcomeMsg {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      color: #00ddff;
+      text-align: center;
+      user-select: none;
+      font-weight: 700;
+    }
+    #chatWindow {
+      flex: 1;
+      overflow-y: auto;
+      background-color: #222;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      color: #ccc;
+      font-size: 0.95rem;
+      user-select: text;
+      white-space: pre-wrap;
+    }
+    .chat-message {
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+    .user-msg {
+      background-color: #0088cc;
+      color: white;
+      align-self: flex-end;
+    }
+    .agent-msg {
+      background-color: #444;
+      color: #00ccff;
+      align-self: flex-start;
+    }
+    #inputArea {
+      display: flex;
+      gap: 8px;
+    }
+    #questionInput {
+      flex: 1;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      background-color: #333;
+      color: #eee;
+      transition: background-color 0.3s ease;
+    }
+    #questionInput:focus {
+      background-color: #444;
+    }
+    #sendBtn {
+      background-color: #00aaff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: #121212;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    #sendBtn:hover {
+      background-color: #0088cc;
+    }
+
+    /* FILE LOAD */
+    #fileLoadArea {
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+      color: #00ddff;
+      text-align: center;
+      user-select: none;
+    }
+    #fileInput {
+      display: none;
+    }
+    #loadDataBtn {
+      background-color: #006699;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    #loadDataBtn:hover {
+      background-color: #004466;
+    }
+
+    /* SCROLLBAR */
+    #chatWindow::-webkit-scrollbar {
+      width: 8px;
+    }
+    #chatWindow::-webkit-scrollbar-thumb {
+      background-color: #00aaffaa;
+      border-radius: 10px;
+    }
+
+    /* LOGOUT */
+    #logoutBtn {
+      background: transparent;
+      border: none;
+      color: #00aaff;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      align-self: center;
+      user-select: none;
+      text-decoration: underline;
+      font-size: 0.9rem;
+    }
+    #logoutBtn:hover {
+      color: #0088cc;
+    }
+
+    /* MOBILE RESPONSIVE */
+    @media (max-width: 400px) {
+      #app {
+        width: 100%;
+        height: 100vh;
+        max-width: none;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" role="main" aria-label="Tech Support AI Agent App">
+    <div id="loginPage" aria-live="polite">
+      <h1>Tech Support Login</h1>
+      <label for="usernameInput">Username</label>
+      <input type="text" id="usernameInput" autocomplete="username" aria-required="true" />
+      <label for="passwordInput">Password</label>
+      <input type="password" id="passwordInput" autocomplete="current-password" aria-required="true" />
+      <button id="loginBtn" aria-label="Login to the system">Login</button>
+      <div id="loginError" role="alert" aria-atomic="true"></div>
+    </div>
+
+    <div id="mainPage" aria-live="polite">
+      <h1>Tech Support AI Agent</h1>
+      <div id="welcomeMsg">Welcome! Ask your technical questions below.</div>
+
+      <div id="fileLoadArea">
+        <button id="loadDataBtn" aria-label="Load PDF knowledge base file">Load Knowledge Base PDF</button>
+        <input type="file" id="fileInput" accept=".pdf" aria-label="Select PDF file with knowledge base" />
+        <div id="loadStatus" aria-live="polite" style="min-height:1.2em; margin-top:4px;"></div>
+      </div>
+
+      <div id="chatWindow" aria-live="polite" aria-relevant="additions" tabindex="0" role="log"></div>
+      <div id="inputArea">
+        <input type="text" id="questionInput" placeholder="Type your question here..." aria-label="Question input" autocomplete="off" />
+        <button id="sendBtn" aria-label="Send question">Send</button>
+      </div>
+      <button id="logoutBtn" role="button" aria-label="Logout">Logout</button>
+    </div>
+  </div>
+
+  <!-- pdf.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.100/pdf.min.js"></script>
+
+  <script>
+    (() => {
+      // Demo local user credentials (for frontend demo only)
+      const USERS = [
+        { username: 'tech1', password: '1234' },
+        { username: 'admin', password: 'admin' }
+      ];
+
+      // Instead of structured Q&A, store raw PDF text
+      let knowledgeBaseText = '';
+
+      // Select elements
+      const loginPage = document.getElementById('loginPage');
+      const mainPage = document.getElementById('mainPage');
+      const loginBtn = document.getElementById('loginBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const usernameInput = document.getElementById('usernameInput');
+      const passwordInput = document.getElementById('passwordInput');
+      const loginError = document.getElementById('loginError');
+      const chatWindow = document.getElementById('chatWindow');
+      const questionInput = document.getElementById('questionInput');
+      const sendBtn = document.getElementById('sendBtn');
+
+      const loadDataBtn = document.getElementById('loadDataBtn');
+      const fileInput = document.getElementById('fileInput');
+      const loadStatus = document.getElementById('loadStatus');
+
+      let loggedInUser = null;
+
+      // Simple function to display messages
+      function addMessage(msg, isUser = false) {
+        const div = document.createElement('div');
+        div.textContent = msg;
+        div.classList.add('chat-message');
+        div.classList.add(isUser ? 'user-msg' : 'agent-msg');
+        chatWindow.appendChild(div);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+      }
+
+      // Simple text search based answer from PDF text
+      // Return snippet containing keywords or default no answer message
+      function answerQuestion(question) {
+        const search = question.toLowerCase();
+        if (!knowledgeBaseText) {
+          return "Knowledge base not loaded. Please load a PDF document first.";
+        }
+        // Check if all words in question appear in the text (simple approach)
+        const questionWords = search.split(/\s+/).filter(w => w.length > 2);
+        let foundSentence = null;
+        // split into sentences by periods or line breaks
+        const sentences = knowledgeBaseText.split(/[\.\n]+/);
+        for (const sentence of sentences) {
+          let matchedAll = true;
+          for (const w of questionWords) {
+            if (!sentence.toLowerCase().includes(w)) {
+              matchedAll = false;
+              break;
+            }
+          }
+          if (matchedAll) {
+            foundSentence = sentence.trim();
+            break;
+          }
+        }
+        if (foundSentence) {
+          return foundSentence + '.';
+        } else {
+          return "I'm sorry, I don't have an answer for that question in the loaded document.";
+        }
+      }
+
+      // Parse PDF file using pdf.js and extract text
+      async function parsePDF(file) {
+        loadStatus.textContent = "Loading PDF and extracting text...";
+        knowledgeBaseText = '';
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+          let textContent = '';
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            const strings = content.items.map(item => item.str);
+            textContent += strings.join(' ') + '\n';
+          }
+          knowledgeBaseText = textContent;
+          loadStatus.textContent = `Knowledge base loaded from PDF (${pdf.numPages} pages, approx. ${knowledgeBaseText.length} characters).`;
+        } catch (e) {
+          loadStatus.textContent = 'Failed to load or parse PDF: ' + e.message;
+          knowledgeBaseText = '';
+        }
+      }
+
+      function validateLogin(username, password) {
+        return USERS.some(user => user.username === username && user.password === password);
+      }
+
+      function showLoginError(msg) {
+        loginError.textContent = msg;
+      }
+
+      function resetLoginError() {
+        loginError.textContent = '';
+      }
+
+      function showMainPage() {
+        loginPage.style.display = 'none';
+        mainPage.style.display = 'flex';
+        questionInput.focus();
+      }
+
+      function showLoginPage() {
+        mainPage.style.display = 'none';
+        loginPage.style.display = 'flex';
+        usernameInput.value = '';
+        passwordInput.value = '';
+        resetLoginError();
+        usernameInput.focus();
+        chatWindow.innerHTML = '';
+        loadStatus.textContent = '';
+        knowledgeBaseText = '';
+      }
+
+      // Event: Login button
+      loginBtn.addEventListener('click', () => {
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+        if (!username || !password) {
+          showLoginError('Please enter both username and password.');
+          return;
+        }
+        if (validateLogin(username, password)) {
+          loggedInUser = username;
+          showMainPage();
+        } else {
+          showLoginError('Invalid username or password.');
+        }
+      });
+
+      // Allow Enter key in login
+      usernameInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') passwordInput.focus();
+      });
+      passwordInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') loginBtn.click();
+      });
+
+      // Event: Logout button
+      logoutBtn.addEventListener('click', () => {
+        loggedInUser = null;
+        showLoginPage();
+      });
+
+      // Event: Send question
+      sendBtn.addEventListener('click', () => {
+        const question = questionInput.value.trim();
+        if (!question) return;
+        addMessage(question, true);
+        questionInput.value = '';
+        // Simulate AI processing delay
+        setTimeout(() => {
+          const answer = answerQuestion(question);
+          addMessage(answer, false);
+        }, 600);
+      });
+
+      // Allow Enter to send question
+      questionInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') sendBtn.click();
+      });
+
+      // Load PDF file input change event
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+          loadStatus.textContent = 'No file selected.';
+          return;
+        }
+        if (file.type !== 'application/pdf') {
+          loadStatus.textContent = 'Please upload a valid PDF file.';
+          return;
+        }
+        parsePDF(file);
+        // Clear the input value to allow re-selecting same file
+        fileInput.value = '';
+      });
+
+      // Clicking loadDataBtn triggers file input click
+      loadDataBtn.addEventListener('click', () => {
+        fileInput.click();
+      });
+
+      // Initialize app to login page
+      showLoginPage();
+
+    })();
+  </script>
+</body>
+</html>
+
