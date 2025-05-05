@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>Tech Support AI Agent (PDF Data Input)</title>
+  <title>Tech Support AI Agent (OneDrive PDF Links)</title>
   <style>
     /* RESET */
     *, *::before, *::after {
@@ -106,6 +106,48 @@
       user-select: none;
       font-weight: 700;
     }
+    #fileLoadArea {
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+      color: #00ddff;
+      text-align: center;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    #urlInput {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      background-color: #333;
+      color: #eee;
+      font-size: 0.9rem;
+    }
+    #loadUrlBtn {
+      background-color: #006699;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    #loadUrlBtn:hover {
+      background-color: #004466;
+    }
+    #loadStatus {
+      min-height: 1.2em;
+      font-size: 0.85rem;
+      color: #00ddff;
+      user-select: none;
+      text-align: center;
+    }
     #chatWindow {
       flex: 1;
       overflow-y: auto;
@@ -169,42 +211,6 @@
       background-color: #0088cc;
     }
 
-    /* FILE LOAD */
-    #fileLoadArea {
-      margin-bottom: 8px;
-      font-size: 0.85rem;
-      color: #00ddff;
-      text-align: center;
-      user-select: none;
-    }
-    #fileInput {
-      display: none;
-    }
-    #loadDataBtn {
-      background-color: #006699;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.9rem;
-      transition: background-color 0.3s ease;
-      user-select: none;
-    }
-    #loadDataBtn:hover {
-      background-color: #004466;
-    }
-
-    /* SCROLLBAR */
-    #chatWindow::-webkit-scrollbar {
-      width: 8px;
-    }
-    #chatWindow::-webkit-scrollbar-thumb {
-      background-color: #00aaffaa;
-      border-radius: 10px;
-    }
-
     /* LOGOUT */
     #logoutBtn {
       background: transparent;
@@ -220,6 +226,15 @@
     }
     #logoutBtn:hover {
       color: #0088cc;
+    }
+
+    /* SCROLLBAR */
+    #chatWindow::-webkit-scrollbar {
+      width: 8px;
+    }
+    #chatWindow::-webkit-scrollbar-thumb {
+      background-color: #00aaffaa;
+      border-radius: 10px;
     }
 
     /* MOBILE RESPONSIVE */
@@ -251,10 +266,10 @@
       <h1>Tech Support AI Agent</h1>
       <div id="welcomeMsg">Welcome! Ask your technical questions below.</div>
 
-      <div id="fileLoadArea">
-        <button id="loadDataBtn" aria-label="Load PDF knowledge base file">Load Knowledge Base PDF</button>
-        <input type="file" id="fileInput" accept=".pdf" aria-label="Select PDF file with knowledge base" />
-        <div id="loadStatus" aria-live="polite" style="min-height:1.2em; margin-top:4px;"></div>
+      <div id="fileLoadArea" role="region" aria-label="Load OneDrive PDF file area">
+        <input type="text" id="urlInput" placeholder="Paste OneDrive PDF share link here" aria-label="OneDrive PDF URL input"/>
+        <button id="loadUrlBtn" aria-label="Load PDF from OneDrive link">Load PDF</button>
+        <div id="loadStatus" aria-live="polite"></div>
       </div>
 
       <div id="chatWindow" aria-live="polite" aria-relevant="additions" tabindex="0" role="log"></div>
@@ -271,16 +286,14 @@
 
   <script>
     (() => {
-      // Demo local user credentials (for frontend demo only)
       const USERS = [
         { username: 'tech1', password: '1234' },
         { username: 'admin', password: 'admin' }
       ];
 
-      // Instead of structured Q&A, store raw PDF text
+      // Store combined text from all loaded PDFs
       let knowledgeBaseText = '';
 
-      // Select elements
       const loginPage = document.getElementById('loginPage');
       const mainPage = document.getElementById('mainPage');
       const loginBtn = document.getElementById('loginBtn');
@@ -292,13 +305,13 @@
       const questionInput = document.getElementById('questionInput');
       const sendBtn = document.getElementById('sendBtn');
 
-      const loadDataBtn = document.getElementById('loadDataBtn');
-      const fileInput = document.getElementById('fileInput');
+      const urlInput = document.getElementById('urlInput');
+      const loadUrlBtn = document.getElementById('loadUrlBtn');
       const loadStatus = document.getElementById('loadStatus');
 
       let loggedInUser = null;
 
-      // Simple function to display messages
+      // Append a chat message
       function addMessage(msg, isUser = false) {
         const div = document.createElement('div');
         div.textContent = msg;
@@ -308,17 +321,15 @@
         chatWindow.scrollTop = chatWindow.scrollHeight;
       }
 
-      // Simple text search based answer from PDF text
-      // Return snippet containing keywords or default no answer message
+      // Answer question by searching combined PDF text
       function answerQuestion(question) {
         const search = question.toLowerCase();
         if (!knowledgeBaseText) {
-          return "Knowledge base not loaded. Please load a PDF document first.";
+          return "Knowledge base not loaded. Please load PDFs from OneDrive links first.";
         }
-        // Check if all words in question appear in the text (simple approach)
         const questionWords = search.split(/\s+/).filter(w => w.length > 2);
         let foundSentence = null;
-        // split into sentences by periods or line breaks
+        // Split combined text into sentences
         const sentences = knowledgeBaseText.split(/[\.\n]+/);
         for (const sentence of sentences) {
           let matchedAll = true;
@@ -336,16 +347,19 @@
         if (foundSentence) {
           return foundSentence + '.';
         } else {
-          return "I'm sorry, I don't have an answer for that question in the loaded document.";
+          return "I'm sorry, I don't have an answer for that question in the loaded documents.";
         }
       }
 
-      // Parse PDF file using pdf.js and extract text
-      async function parsePDF(file) {
-        loadStatus.textContent = "Loading PDF and extracting text...";
-        knowledgeBaseText = '';
+      // Parse PDF from URL using fetch and pdf.js
+      async function parsePDFfromURL(url) {
         try {
-          const arrayBuffer = await file.arrayBuffer();
+          loadStatus.textContent = 'Fetching and parsing PDF...';
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const arrayBuffer = await response.arrayBuffer();
           const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
           let textContent = '';
           for (let i = 1; i <= pdf.numPages; i++) {
@@ -354,14 +368,14 @@
             const strings = content.items.map(item => item.str);
             textContent += strings.join(' ') + '\n';
           }
-          knowledgeBaseText = textContent;
-          loadStatus.textContent = `Knowledge base loaded from PDF (${pdf.numPages} pages, approx. ${knowledgeBaseText.length} characters).`;
-        } catch (e) {
-          loadStatus.textContent = 'Failed to load or parse PDF: ' + e.message;
-          knowledgeBaseText = '';
+          knowledgeBaseText += textContent;
+          loadStatus.textContent = `PDF loaded (${pdf.numPages} pages). You can load more PDFs or start asking questions.`;
+        } catch (err) {
+          loadStatus.textContent = 'Failed to load or parse PDF: ' + err.message;
         }
       }
 
+      // Validate login credentials
       function validateLogin(username, password) {
         return USERS.some(user => user.username === username && user.password === password);
       }
@@ -392,7 +406,7 @@
         knowledgeBaseText = '';
       }
 
-      // Event: Login button
+      // Login event
       loginBtn.addEventListener('click', () => {
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
@@ -408,7 +422,7 @@
         }
       });
 
-      // Allow Enter key in login
+      // Enter key in login inputs
       usernameInput.addEventListener('keydown', e => {
         if (e.key === 'Enter') passwordInput.focus();
       });
@@ -416,54 +430,66 @@
         if (e.key === 'Enter') loginBtn.click();
       });
 
-      // Event: Logout button
+      // Logout event
       logoutBtn.addEventListener('click', () => {
         loggedInUser = null;
         showLoginPage();
       });
 
-      // Event: Send question
+      // Send question event
       sendBtn.addEventListener('click', () => {
         const question = questionInput.value.trim();
         if (!question) return;
         addMessage(question, true);
         questionInput.value = '';
-        // Simulate AI processing delay
         setTimeout(() => {
           const answer = answerQuestion(question);
           addMessage(answer, false);
         }, 600);
       });
 
-      // Allow Enter to send question
+      // Enter key to send question
       questionInput.addEventListener('keydown', e => {
         if (e.key === 'Enter') sendBtn.click();
       });
 
-      // Load PDF file input change event
-      fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) {
-          loadStatus.textContent = 'No file selected.';
+      // Load PDF from OneDrive URL
+      loadUrlBtn.addEventListener('click', () => {
+        let url = urlInput.value.trim();
+        if (!url) {
+          loadStatus.textContent = 'Please enter a OneDrive PDF URL.';
           return;
         }
-        if (file.type !== 'application/pdf') {
-          loadStatus.textContent = 'Please upload a valid PDF file.';
-          return;
-        }
-        parsePDF(file);
-        // Clear the input value to allow re-selecting same file
-        fileInput.value = '';
+
+        // Convert OneDrive share link to direct download (if needed)
+        // Replace ?e=... or ?authkey=... params with ?download=1 for direct download
+        // Or convert URL to download link patterns depending on OneDrive link format
+
+        // Example for OneDrive embed links:
+        // https://onedrive.live.com/?cid=...&id=...&v=... replaced by 
+        // https://onedrive.live.com/download?cid=...&resid=...
+
+        // For general direct download, user needs to provide direct URL or modify link accordingly.
+
+        try {
+          // Attempt to convert to direct download link for OneDrive
+          // Basic fallback approach: detect if the host contains "1drv.ms" (OneDrive short link)
+          if (url.includes('1drv.ms')) {
+            // Use fetch HEAD to get redirected URL or use as is
+            // Just use as is, it should redirect to actual file
+          } else if (url.includes('onedrive.live.com')) {
+            // Replace "redir" or "embed" to "download"
+            url = url.replace('/redir?', '/download?').replace('/embed?', '/download?');
+          }
+        } catch {}
+
+        loadStatus.textContent = 'Loading PDF from OneDrive link...';
+        parsePDFfromURL(url);
+        urlInput.value = '';
       });
 
-      // Clicking loadDataBtn triggers file input click
-      loadDataBtn.addEventListener('click', () => {
-        fileInput.click();
-      });
-
-      // Initialize app to login page
+      // Initialize
       showLoginPage();
-
     })();
   </script>
 </body>
