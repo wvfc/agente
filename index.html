@@ -229,7 +229,7 @@
     }
 
     function loadConversations() {
-      fetch("https://b09b-168-196-66-15.ngrok-free.app/conversations", {
+      fetch("https://9d99-168-196-66-15.ngrok-free.app/conversations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: loggedInUser })
@@ -252,7 +252,7 @@
     }
 
     function loadHistory() {
-      fetch("https://b09b-168-196-66-15.ngrok-free.app/history", {
+      fetch("https://9d99-168-196-66-15.ngrok-free.app/history", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -303,7 +303,7 @@
       if (!question) return;
       addMessage(question, true);
       questionInput.value = "";
-      fetch("https://b09b-168-196-66-15.ngrok-free.app/ask", {
+      fetch("https://9d99-168-196-66-15.ngrok-free.app/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
